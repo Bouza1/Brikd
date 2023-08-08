@@ -83,7 +83,12 @@ export default class Game extends Phaser.Scene{
                     {
                         const littleBrick = this.add.rectangle(start_x, start_y, 10, 10, color)
                         this.physics.add.existing(littleBrick, true)
-                        littleBrick.hitCount = 0;
+                        const randomNumber = Math.random();
+                        if (randomNumber < 0.5) {
+                            littleBrick.strength = 1;
+                        } else {
+                            littleBrick.strength =  2;
+                        }
                         bricks.add(littleBrick);
 
                     }
@@ -264,7 +269,7 @@ export default class Game extends Phaser.Scene{
         this.lives -= 1
         if(this.lives <= 0)
         {
-            this.restartGame()
+            this.restartGame("loss")
         }
         else
         {
@@ -352,14 +357,14 @@ export default class Game extends Phaser.Scene{
 
     brickIsHit(ball, brick)
     {   
-        brick.hitCount+= ball.strength;
-        if(brick.hitCount === 1)
+        brick.strength -= ball.strength;
+        if(brick.strength >= 1)
         {
             this.brickHitSound.play();
             brick.setAlpha(0.5)
             this.generatePowerup(brick)
-        } 
-        else if (brick.hitCount >= 2) 
+        }
+        else if(brick.strength === 0)
         {
             brick.destroy();
             this.brickExplodeSound .play();
@@ -367,26 +372,24 @@ export default class Game extends Phaser.Scene{
             this.brickCount --;
             if(this.brickCount <= 0)
             {
-                this.scene.stop('game');
-                this.scene.restart('game');
-                console.log("Game Won")
+                restartGame("win")
             }
-        }
+        } 
     }
 
    restartGame(type)
    {  
     this.scene.stop('game');
     this.scene.restart('game')
-    if(type === "gameover")
+    if(type === "loss")
     {
-
+        this.scene.start('lossScreen');
     }
     else if(type === "win")
     {
-
+        this.scene.start('winScreen');
     }
-    this.scene.start('titleScreen');
+    
    }
 
     explodeAnimation(x, y)
