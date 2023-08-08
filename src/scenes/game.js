@@ -264,7 +264,7 @@ export default class Game extends Phaser.Scene{
         this.lives -= 1
         if(this.lives <= 0)
         {
-            location.reload
+            this.restartGame()
         }
         else
         {
@@ -373,6 +373,21 @@ export default class Game extends Phaser.Scene{
             }
         }
     }
+
+   restartGame(type)
+   {  
+    this.scene.stop('game');
+    this.scene.restart('game')
+    if(type === "gameover")
+    {
+
+    }
+    else if(type === "win")
+    {
+
+    }
+    this.scene.start('titleScreen');
+   }
 
     explodeAnimation(x, y)
     {

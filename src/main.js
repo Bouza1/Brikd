@@ -25,4 +25,4 @@ game.scene.add('game-background', GameBackground)
 game.scene.add('game', Game)
 
 
-game.scene.start('game')
+game.scene.start('titleScreen')
