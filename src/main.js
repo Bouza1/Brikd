@@ -5,7 +5,7 @@ import GameBackground from './scenes/gameBackground'
 
 const config = 
 {
-    width: 630,
+    width: 680,
     height:440,
     type: Phaser.AUTO,
     backgroundColor:'#000000',
@@ -25,4 +25,4 @@ game.scene.add('game-background', GameBackground)
 game.scene.add('game', Game)
 
 
-game.scene.start('titleScreen')
+game.scene.start('game')
