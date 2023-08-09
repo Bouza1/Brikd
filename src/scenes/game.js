@@ -54,6 +54,7 @@ export default class Game extends Phaser.Scene{
                 [1,1,1,0,0,0,0,0,1,1, "0xff7f2a"]
             ],
             [
+                //A
                 [0,0,1,1,1,1,1,1,1,1, "0x0088aa"],
                 [0,1,1,1,1,1,1,1,1,1, "0x0088aa"],
                 [1,1,0,0,0,1,1,0,0,0, "0x0088aa"],
@@ -124,12 +125,20 @@ export default class Game extends Phaser.Scene{
         this.load.image('heart', './assets/heart2.png');
         this.load.image('powerupPadel', './assets/powerup_padel.png');
         this.load.image('powerupBall', './assets/powerup_ball.png');
+        this.load.image('laser', './assets/bullet3.png')
         this.load.spritesheet('explosion', './assets/explosion.png', {
             frameWidth: 16,
             frameHeight: 16,
             startFrame: 0,
             endFrame: 17 - 1
         });
+        this.load.spritesheet('powerupBlock', "./assets/rainbowBlock.png", {
+            frameWidth:20,
+            frameHeight:20,
+            startFrame:0,
+            endFrame:24
+        })
+
         this.load.audio('brickHit', './assets/hit.mp3');
         this.load.audio('brickExplode', './assets/bomb.mp3');
         this.load.audio('powerupSound', './assets/bonus.mp3');
@@ -152,23 +161,26 @@ export default class Game extends Phaser.Scene{
         this.paddle.setOrigin(0.5)
         this.physics.add.existing(this.paddle, true)
 
-        //Ball
+        //Balls & Ball
+        this.balls = this.add.group();
         this.ball = this.add.circle(260, 250, 6, 0xffffff, 1)
         this.ball.strength = 1
+        this.ball.trueball = true
         this.physics.add.existing(this.ball)
         this.ball.body.setBounce(1)
         this.ball.body.setCollideWorldBounds(true)
         this.resetBall()
         this.ball.checkWorldBounds = true;
-
+        this.balls.add(this.ball)
         //Explosion Animation
         this.anims.create({
             key: 'explode',
             frames: this.anims.generateFrameNumbers('explosion'),
-            frameRate: 20,
+            frameRate: 40,
             repeat: 0,
             hideOnComplete: true
         });
+
         // Sounds
         this.brickHitSound = this.sound.add('brickHit');
         this.powerupSound = this.sound.add('powerupSound');
@@ -177,16 +189,28 @@ export default class Game extends Phaser.Scene{
         this.music.play();
 
         // Powerups
-        this.powerupPadelFlag = 0
-        this.powerupBallFlag = 0
-
+        this.powerupPadelFlag = 0;
+        this.powerupBallFlag = 0;
+        this.powerUpTripleFlag = 0;
+        this.powerUpGunsFlag = 0;
+        this.okayToShoot = 1;
+        this.anims.create({
+            key: 'powerupBrick',
+            frames: this.anims.generateFrameNumbers('powerupBlock'),
+            frameRate: 20,
+            repeat: -1,
+            hideOnComplete: true
+        });
+        
+        // Bullets
+        this.bullets = this.add.group()
         //Colliders
         /** @type  {Phaser.Physics.Arcade.Body}*/
         this.physics.add.collider(this.ball, this.paddle, this.handlePaddleCollision, null, this);
-        this.physics.add.collider(this.ball, this.bricks, this.brickIsHit, null, this)
-
+        this.physics.add.collider(this.ball, this.bricks, this.brickIsHit, null, this);
+        this.physics.add.overlap(this.bricks, this.bullets, this.brickIsHitByBullet, null, this)
         // Controls
-        this.cursors = this.input.keyboard.createCursorKeys()
+        this.cursors = this.input.keyboard.createCursorKeys();
 
     }
 
@@ -194,7 +218,7 @@ export default class Game extends Phaser.Scene{
     {   
         //Controls
         /** @type {Phaser.Physics.Arcade.StaticBody} */
-        const body = this.paddle.body
+        const body = this.paddle.body;
         if(this.cursors.left.isDown)
         {
             this.paddle.x -= 10
@@ -205,12 +229,33 @@ export default class Game extends Phaser.Scene{
             this.paddle.x += 10
             body.updateFromGameObject()
         }
-        if(this.ball.y >= 430)
-        {
-            this.explodeAnimation(this.ball.x, this.ball.y)
-            this.resetBall()
-            this.minusLife()
-        }
+
+
+        this.input.keyboard.on('keyup-SPACE', this.return_bullet, this);
+        this.bullets.getChildren().forEach(bullet => {
+            if (bullet.y === 0) 
+            {
+                bullet.destroy()
+            }
+        })
+
+        this.balls.getChildren().forEach(ball => {
+            if (ball.y >= 430) 
+            {
+                this.explodeAnimation(ball.x, ball.y)
+                if(ball.trueball === true)
+                {
+                    this.resetBall()
+                    this.minusLife()
+                }
+                else
+                {
+                    this.powerUpTripleFlag -= 1
+                    ball.destroy()
+                }
+                
+            }
+        });
         this.stopPaddleExitingWorld.call(this);
     }
 
@@ -238,9 +283,7 @@ export default class Game extends Phaser.Scene{
         {
             if(easierCheck > -20) 
             {
-                console.log("between 0 and -20")
                 ball.body.setVelocityX(-60)
-                
             }
             else
             {
@@ -248,8 +291,6 @@ export default class Game extends Phaser.Scene{
             }
         }
 }
-
-
 
     resetBall()
     {
@@ -261,7 +302,6 @@ export default class Game extends Phaser.Scene{
         const velocityX = speed * Math.cos(angleRad);
         const velocityY = speed * Math.sin(angleRad);
         this.ball.body.setVelocity(velocityX, velocityY);
-
     }
 
     minusLife() 
@@ -284,7 +324,7 @@ export default class Game extends Phaser.Scene{
         powerup.destroy()
         this.ball.setRadius(10)
         this.ball.strength = 2
-        console.log(this.ball.strength)
+        // console.log(this.ball.strength)
         setTimeout(() => {
             this.ball.setRadius(6)
             this.ball.strength = 1
@@ -306,37 +346,88 @@ export default class Game extends Phaser.Scene{
 
     tripleBall(powerup)
     {
-        const ball = this.add.circle(260, 250, 6, 0xffffff, 1)
-        ball.strength = 1
-        physics.add.existing(this.ball)
-        ball.body.setBounce(1)
-        ball.body.setCollideWorldBounds(true)
+        this.powerupSound.play();
+        powerup.destroy()
+
+        const ball1 = this.add.circle(320, 50, 6, 0xffffff, 1)
+        ball1.strength = 1
+        this.physics.add.existing(ball1)
+        ball1.body.setBounce(1)
+        ball1.body.setCollideWorldBounds(true)
+        ball1.body.setVelocity(50, 160)
+        const ball2 = this.add.circle(420, 50, 6, 0xffffff, 1)
+        ball2.strength = 1
+        this.physics.add.existing(ball2)
+        ball2.body.setBounce(1)
+        ball2.body.setCollideWorldBounds(true)
+        ball2.body.setVelocity(-50, 160)
+        
+        ball1.trueball = false
+        ball2.trueball = false
+
+        this.balls.add(ball1)
+        this.balls.add(ball2)
+        // console.log(this.balls)
+        this.physics.add.collider(ball1, this.paddle, this.handlePaddleCollision, null, this);
+        this.physics.add.collider(ball1, this.bricks, this.brickIsHit, null, this)
+        this.physics.add.collider(ball2, this.paddle, this.handlePaddleCollision, null, this);
+        this.physics.add.collider(ball2, this.bricks, this.brickIsHit, null, this)
     }
+
+    return_bullet()
+    {
+        if(this.powerUpGunsFlag === 0 && this.okayToShoot === 1)
+        {
+            this.okayToShoot = 0;
+            console.log(this.okayToShoot)
+            const laserBullet = this.add.image(this.paddle.x, this.paddle.y, 'laser').setScale(0.05);
+            laserBullet.rotation = Phaser.Math.DegToRad(-90)
+            this.physics.add.existing(laserBullet);
+            laserBullet.body.setVelocity(0,-300);
+            this.bullets.add(laserBullet)
+        }
+        setTimeout(() => {
+            this.okayToShoot = 1;
+          }, 300);
+    }
+
+    guns(powerup)
+    {
+        this.powerupSound.play();
+        powerup.destroy()
+    }
+
 
     dropPowerup(x, y, type) 
     {
+        /** @type  {Phaser.Physics.Arcade.Sprite}*/
+        const powerup = this.add.sprite(x, y, 'powerupBlock').setScale(1);
+        this.physics.add.existing(powerup);
+        powerup.body.setVelocity(0,70);
+        powerup.anims.play('powerupBrick');
         if(type === "ball")
         {
-            const powerup = this.add.image(x, y, 'powerupBall');
-            this.physics.add.existing(powerup);
-            powerup.body.setVelocity(0, 70);
             this.physics.add.collider(this.paddle, powerup, () => this.biggerBall(powerup), null, this);
-            return powerup;
         }
         else if(type === "padel")
         {
-            const powerup = this.add.image(x, y, 'powerupPadel');
-            this.physics.add.existing(powerup);
-            powerup.body.setVelocity(0, 70);
             this.physics.add.collider(this.paddle, powerup, () => this.biggerPadel(powerup), null, this);
-            return powerup;
         }
-    
+        else if(type === "tripleBall")
+        {
+            this.physics.add.collider(this.paddle, powerup, () => this.tripleBall(powerup), null, this);
+        }
+        else if(type === "guns")
+        {
+            this.physics.add.collider(this.paddle, powerup, () => this.guns(powerup), null, this);
+        }
+
+    return powerup;
     }
 
     generatePowerup(brick)
     {
-        let rand = Math.floor(Math.random() * 10)
+        let rand = Math.floor(Math.random() * 20)
         let x = brick.x
         let y = brick.y
         if(rand === 7 && this.powerupPadelFlag === 0)
@@ -349,32 +440,51 @@ export default class Game extends Phaser.Scene{
             this.dropPowerup(x, y, "ball")
             this.powerupBallFlag = 1;
         }
-        else if(rand === 3)
+        else if(rand === 11 && this.powerUpTripleFlag === 0)
         {
-            this.dropPowerup(x,y, "tripleBall")
+            this.dropPowerup(x, y, "tripleBall") 
+            this.powerUpTripleFlag = 2;
         }
+        else if(rand === 17 && this.powerUpGunsFlag === 0)
+        {
+            this.dropPowerup(x, y, "guns") 
+            // this.powerUpGunsFlag = 1;
+        }
+
     }
 
     brickIsHit(ball, brick)
     {   
         brick.strength -= ball.strength;
+        this.generatePowerup(brick)
         if(brick.strength >= 1)
         {
             this.brickHitSound.play();
             brick.setAlpha(0.5)
-            this.generatePowerup(brick)
         }
-        else if(brick.strength === 0)
+        else if(brick.strength <= 0)
         {
             brick.destroy();
-            this.brickExplodeSound .play();
+            this.brickExplodeSound.play();
             this.explodeAnimation(brick.x, brick.y)
             this.brickCount --;
             if(this.brickCount <= 0)
             {
-                restartGame("win")
+                this.restartGame("win")
             }
         } 
+    }
+
+    brickIsHitByBullet(brick, bullet)
+    {
+        brick.destroy();
+        this.brickExplodeSound.play();
+        this.explodeAnimation(brick.x, brick.y)
+        this.brickCount --;
+        if(this.brickCount <= 0)
+        {
+            this.restartGame("win")
+        }
     }
 
    restartGame(type)
