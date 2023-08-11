@@ -1,71 +1,64 @@
 import Phaser from "phaser";
+import { letters1, letters2, letters3, letters4, randGeneratedLevel } from "./levels";
 
 export default class Game extends Phaser.Scene{
     
-    init()
+    // Add powerup images to a group so can be destoryed as one when scene ends
+    // Add powerup padel and 10 bullet images, every shot minus a bullet image
+    init(data)
     {
-        this.lives = 10;
+        this.lives = data.lifes || 10;
+        this.level = data.level || 0
+        this.score = data.score || 0
+        this.okayToShoot = 0
+        this.bulletsLeft = 0
+    }  
+    
+    preload()
+    {
+        this.load.image('heart', './assets/heart2.png');
+        this.load.image('qmark', './assets/rainbowQ.png');
+        this.load.image('laser', './assets/bullet3.png')
+        this.load.image('paddel', './assets/paddel.png')
+        this.load.image('bottomBar', './assets/bottombar.png')
+        this.load.image('bigBall', './assets/bigball.png')
+        this.load.image('tripleBallImg', './assets/tripleBall.png')
+        this.load.image('bigPadelImg', './assets/bigPadel.png')
+        this.load.spritesheet('explosion', './assets/explosion.png', {
+            frameWidth: 16,
+            frameHeight: 16,
+            startFrame: 0,
+            endFrame: 17 - 1
+        });
+        this.load.spritesheet('powerupBlock', "./assets/rainbowBlock.png", {
+            frameWidth:20,
+            frameHeight:20,
+            startFrame:0,
+            endFrame:24
+        })
+
+        this.load.audio('brickHit', './assets/hit.mp3');
+        this.load.audio('brickExplode', './assets/bomb.mp3');
+        this.load.audio('powerupSound', './assets/bonus.mp3');
+        this.load.audio('bgMusic', './assets/music.mp3')
+        this.load.audio('win', './assets/win_loud.mp3');
+        this.scene.stop('countdownScreen');
     }
 
-    initBricks()
+
+    initBricks(level)
     {
         const bricks = this.add.group();
-
-        const letters = 
-        [
-            [
-                //B
-                [1,1,1,1,1,1,1,1,1,1, "0x0088aa"],
-                [1,1,1,1,1,1,1,1,1,1, "0x0088aa"],
-                [1,1,0,0,1,1,0,0,1,1, "0x0088aa"],
-                [1,1,0,0,1,1,0,0,1,1, "0x0088aa"],
-                [1,1,0,0,1,1,0,0,1,1, "0x0088aa"],
-                [1,1,1,1,1,1,1,1,1,1, "0x0088aa"],
-                [0,1,1,1,0,0,1,1,1,0, "0x0088aa"]
-            ],
-            [
-                //O
-                [0,1,1,1,1,1,1,1,1,0, "0xff7f2a"],
-                [1,1,1,1,1,1,1,1,1,1, "0xff7f2a"],
-                [1,1,0,0,0,0,0,0,1,1, "0xff7f2a"],
-                [1,1,0,0,0,0,0,0,1,1, "0xff7f2a"],
-                [1,1,0,0,0,0,0,0,1,1, "0xff7f2a"],
-                [1,1,1,1,1,1,1,1,1,1, "0xff7f2a"],
-                [0,1,1,1,1,1,1,1,1,0, "0xff7f2a"]
-            ],    
-            [
-                //U
-                [1,1,1,1,1,1,1,1,1,0, "0x0088aa"],
-                [1,1,1,1,1,1,1,1,1,1, "0x0088aa"],
-                [0,0,0,0,0,0,0,0,1,1, "0x0088aa"],
-                [0,0,0,0,0,0,0,0,1,1, "0x0088aa"],
-                [0,0,0,0,0,0,0,0,1,1, "0x0088aa"],
-                [1,1,1,1,1,1,1,1,1,1, "0x0088aa"],
-                [1,1,1,1,1,1,1,1,1,0, "0x0088aa"]              
-            ],
-            [
-                //Z
-                [1,1,0,0,0,0,0,1,1,1, "0xff7f2a"],
-                [1,1,0,0,0,0,1,1,1,1, "0xff7f2a"],
-                [1,1,0,0,0,1,1,0,1,1, "0xff7f2a"],
-                [1,1,0,0,1,1,0,0,1,1, "0xff7f2a"],
-                [1,1,0,1,1,0,0,0,1,1, "0xff7f2a"],
-                [1,1,1,1,0,0,0,0,1,1, "0xff7f2a"],
-                [1,1,1,0,0,0,0,0,1,1, "0xff7f2a"]
-            ],
-            [
-                //A
-                [0,0,1,1,1,1,1,1,1,1, "0x0088aa"],
-                [0,1,1,1,1,1,1,1,1,1, "0x0088aa"],
-                [1,1,0,0,0,1,1,0,0,0, "0x0088aa"],
-                [1,1,0,0,0,1,1,0,0,0, "0x0088aa"],
-                [0,1,1,1,1,1,1,1,1,1, "0x0088aa"],
-                [0,0,1,1,1,1,1,1,1,1, "0x0088aa"],
-
-            ]
-            
-            
-        ]
+        let letters = ""
+        if(level <= 1)
+        {
+            let levelObj = [letters1, letters2, letters3, letters4]
+            letters = levelObj[level]
+        }
+        else
+        {
+            letters = randGeneratedLevel()
+        }
 
         let start_x = 60
         for(let k = 0; k < letters.length; k++)
@@ -106,7 +99,6 @@ export default class Game extends Phaser.Scene{
 
     initLives()
     {
-        this.lives = 10
         const hearts = this.add.group();
         let startX = 20
         for(let i = 0; i < this.lives; i++)
@@ -116,61 +108,66 @@ export default class Game extends Phaser.Scene{
             hearts.add(life);
             startX = startX + 10
         }
-        
         return hearts
     }
 
-    preload()
+    initBall(x, y)
     {
-        this.load.image('heart', './assets/heart2.png');
-        this.load.image('powerupPadel', './assets/powerup_padel.png');
-        this.load.image('powerupBall', './assets/powerup_ball.png');
-        this.load.image('laser', './assets/bullet3.png')
-        this.load.spritesheet('explosion', './assets/explosion.png', {
-            frameWidth: 16,
-            frameHeight: 16,
-            startFrame: 0,
-            endFrame: 17 - 1
-        });
-        this.load.spritesheet('powerupBlock', "./assets/rainbowBlock.png", {
-            frameWidth:20,
-            frameHeight:20,
-            startFrame:0,
-            endFrame:24
-        })
 
-        this.load.audio('brickHit', './assets/hit.mp3');
-        this.load.audio('brickExplode', './assets/bomb.mp3');
-        this.load.audio('powerupSound', './assets/bonus.mp3');
-        this.load.audio('bgMusic', './assets/music.mp3')
+        let ball = this.add.image(x, y, 'bigBall').setScale(0.4)
+        ball.strength = 1
+        this.physics.add.existing(ball)
+        ball.body.setBounce(1)
+        ball.body.setCollideWorldBounds(true)
+        let vel = this.genRandomVel()
+        ball.body.setVelocity(vel[0], vel[1]);
+        return ball
     }
 
     create()
     { 
-        this.physics.world.setBounds(0, 0, 680, 440)
+        //Bottom Bar
+        this.bottombar = this.add.image(337.5, 490, 'bottomBar').setScale(0.5)
+        this.bottombar.setOrigin(0.5)
+        this.physics.add.existing(this.bottombar, true)
+    
+        this.scoreLabel = this.add.text(580, 515, this.score,{
+            fontSize:50
+        })
+        this.scoreLabel.setOrigin(0.5)
+
+        this.levelLabel = this.add.text(95, 515, Number(this.level)+1, {
+            fontSize:50
+        })
+        this.levelLabel.setOrigin(0.5)
+
+
+        this.physics.world.setBounds(0, 0, 680, 500)
         
         //Bricks
-        this.bricks = this.initBricks()
+        this.bricks = this.initBricks(this.level)
         this.brickCount = this.bricks.children.entries.length
 
         //Lives
         this.hearts = this.initLives()
 
         //Padel
-        this.paddle = this.add.rectangle(315, 400, 80, 20, 0xffffff, 1)
+        this.paddle = this.add.image(337.5, 400, 'paddel');
         this.paddle.setOrigin(0.5)
         this.physics.add.existing(this.paddle, true)
 
         //Balls & Ball
         this.balls = this.add.group();
-        this.ball = this.add.circle(260, 250, 6, 0xffffff, 1)
-        this.ball.strength = 1
+        this.ball = this.initBall(337.5, 220)
+        // // this.ball = this.add.image(260, 250, 'bigBall').setScale(0.4)
+        // // this.ball = this.add.circle(260, 250, 6, 0xffffff, 1)
+        // this.ball.strength = 1
         this.ball.trueball = true
-        this.physics.add.existing(this.ball)
-        this.ball.body.setBounce(1)
-        this.ball.body.setCollideWorldBounds(true)
-        this.resetBall()
-        this.ball.checkWorldBounds = true;
+        // this.physics.add.existing(this.ball)
+        // this.ball.body.setBounce(1)
+        // this.ball.body.setCollideWorldBounds(true)
+        // this.resetBall()
+        // this.ball.checkWorldBounds = true;
         this.balls.add(this.ball)
         //Explosion Animation
         this.anims.create({
@@ -185,6 +182,7 @@ export default class Game extends Phaser.Scene{
         this.brickHitSound = this.sound.add('brickHit');
         this.powerupSound = this.sound.add('powerupSound');
         this.brickExplodeSound = this.sound.add('brickExplode');
+        this.winSound = this.sound.add('win');
         this.music = this.sound.add('bgMusic', { loop: true,  volume: 0.5 }); 
         this.music.play();
 
@@ -202,13 +200,21 @@ export default class Game extends Phaser.Scene{
             hideOnComplete: true
         });
         
-        // Bullets
+        // Groups
         this.bullets = this.add.group()
+        this.powerupGroup = this.add.group()
+        this.bulletImgGroup = this.add.group()
+        this.powerupImageGroup = this.add.group()
+
         //Colliders
         /** @type  {Phaser.Physics.Arcade.Body}*/
-        this.physics.add.collider(this.ball, this.paddle, this.handlePaddleCollision, null, this);
-        this.physics.add.collider(this.ball, this.bricks, this.brickIsHit, null, this);
+        this.physics.add.collider(this.balls, this.paddle, this.handlePaddleCollision, null, this);
+        this.physics.add.collider(this.balls, this.bricks, this.brickIsHit, null, this);
         this.physics.add.overlap(this.bricks, this.bullets, this.brickIsHitByBullet, null, this)
+        this.physics.add.overlap(this.paddle, this.powerupGroup, this.handlePowerUp, null, this)
+        this.physics.add.collider(this.bottombar, this.powerupGroup, this.destroyPowerup, null, this)
+        this.physics.add.collider(this.bottombar, this.balls, this.handleDeadBall, null, this)
+
         // Controls
         this.cursors = this.input.keyboard.createCursorKeys();
 
@@ -230,8 +236,8 @@ export default class Game extends Phaser.Scene{
             body.updateFromGameObject()
         }
 
-
         this.input.keyboard.on('keyup-SPACE', this.return_bullet, this);
+
         this.bullets.getChildren().forEach(bullet => {
             if (bullet.y === 0) 
             {
@@ -239,30 +245,54 @@ export default class Game extends Phaser.Scene{
             }
         })
 
-        this.balls.getChildren().forEach(ball => {
-            if (ball.y >= 430) 
-            {
-                this.explodeAnimation(ball.x, ball.y)
-                if(ball.trueball === true)
-                {
-                    this.resetBall()
-                    this.minusLife()
-                }
-                else
-                {
-                    this.powerUpTripleFlag -= 1
-                    ball.destroy()
-                }
-                
-            }
-        });
         this.stopPaddleExitingWorld.call(this);
     }
 
     stopPaddleExitingWorld() {
-        this.paddle.x = Phaser.Math.Clamp(this.paddle.x, 40, 680 - 40);
+        this.paddle.x = Phaser.Math.Clamp(this.paddle.x, this.paddle.width/2 , 675 - this.paddle.width/2);
     }
 
+    initBulletImgs()
+    {
+        let startX = 308
+        for(let i = 0; i < 10; i++)
+        {
+            let bulletImage = this.add.image(startX, 500, 'laser').setScale(0.05)
+            bulletImage.rotation = Phaser.Math.DegToRad(-90)
+            startX += 7.2
+            bulletImage.value = i
+            this.bulletImgGroup.add(bulletImage)
+        }
+    }
+
+    handleDeadBall(bottomBar, ball)
+    {
+        this.explodeAnimation(ball.x, ball.y, 2)
+        if(ball.trueball === true)
+        {
+            this.resetBall()
+            this.minusLife()
+        }
+        else
+        {
+            this.powerUpTripleFlag -= 1
+            if(this.powerUpTripleFlag <= 0)
+            {
+                this.tripleBallImg.destroy()
+            }
+            ball.destroy()
+        }
+    }
+
+    updateCountdown() {
+        this.countdownValue--;
+        this.countdownText.setText(this.countdownValue);
+    
+        if (this.countdownValue === 0) {
+            this.countdownText.setText("Go!");
+        }
+    }
+    
     handlePaddleCollision(ball, paddle) {
         const relativeX = ball.x - paddle.x;
         const normalizedRelativeX = (relativeX / paddle.width); 
@@ -295,13 +325,19 @@ export default class Game extends Phaser.Scene{
     resetBall()
     {
         this.ball.setPosition(300, 240)
+        let vel = this.genRandomVel()
+        this.ball.body.setVelocity(vel[0], vel[1]);
+    }
+
+    genRandomVel()
+    {
         const minAngle = Math.atan(440 / 600);
         const maxAngle = Math.PI - minAngle;
         const angleRad = Phaser.Math.FloatBetween(minAngle, maxAngle);
         const speed = 180;
         const velocityX = speed * Math.cos(angleRad);
         const velocityY = speed * Math.sin(angleRad);
-        this.ball.body.setVelocity(velocityX, velocityY);
+        return [velocityX, velocityY]
     }
 
     minusLife() 
@@ -318,111 +354,115 @@ export default class Game extends Phaser.Scene{
         
     }
 
-    biggerBall(powerup)
+    destroyPowerup(bottombar, powerup)
+    {
+        powerup.destroy()
+    }
+
+    handlePowerUp(bottombar, powerup)
+    {
+        // console.log(powerup)
+        if(powerup.type === "Sprite")
+        {
+          if(powerup.powerupType === "ball")
+          {
+            this.biggerBall();
+          }
+          else if(powerup.powerupType === "padel")
+          {
+              this.biggerPadel();
+          }
+          else if(powerup.powerupType === "tripleBall")
+          {
+              this.tripleBall();
+          }
+          else if(powerup.powerupType === "guns")
+          {
+              this.guns();
+          }
+        }
+        powerup.destroy()
+    }
+
+    biggerBall()
     {
         this.powerupSound.play();
-        powerup.destroy()
-        this.ball.setRadius(10)
+        this.ball.setScale(0.6)
         this.ball.strength = 2
-        // console.log(this.ball.strength)
+        this.bigBall = this.add.image(410, 490, 'bigBall');
+        this.bigBall.setOrigin(0.5)
+        this.powerupImageGroup.add(this.bigBall)
         setTimeout(() => {
-            this.ball.setRadius(6)
+            this.bigBall.destroy()
+            this.ball.setScale(0.4)
             this.ball.strength = 1
             this.powerupBallFlag = 0
           }, 15000);
     }
 
-    biggerPadel(powerup)
+    biggerPadel()
     {
         this.powerupSound.play();
-        powerup.destroy()
-        this.paddle.setSize(160, 20)
+        this.paddle.setScale(2, 1)
+        this.bigPadelImage = this.add.image(341, 475, 'bigPadelImg');
+        this.bigPadelImage.setOrigin(0.5)
+        this.powerupImageGroup.add(this.bigPadelImage)
         setTimeout(() => {
-            this.paddle.setSize(80, 20)
+            this.paddle.setScale(1, 1)
             this.powerupPadelFlag = 0
+            this.bigPadelImage.destroy()
           }, 15000);
           
     }
 
-    tripleBall(powerup)
+
+    tripleBall()
     {
         this.powerupSound.play();
-        powerup.destroy()
 
-        const ball1 = this.add.circle(320, 50, 6, 0xffffff, 1)
-        ball1.strength = 1
-        this.physics.add.existing(ball1)
-        ball1.body.setBounce(1)
-        ball1.body.setCollideWorldBounds(true)
-        ball1.body.setVelocity(50, 160)
-        const ball2 = this.add.circle(420, 50, 6, 0xffffff, 1)
-        ball2.strength = 1
-        this.physics.add.existing(ball2)
-        ball2.body.setBounce(1)
-        ball2.body.setCollideWorldBounds(true)
-        ball2.body.setVelocity(-50, 160)
-        
+        this.tripleBallImg = this.add.image(270, 490, 'tripleBallImg');
+        this.tripleBallImg.setOrigin(0.5)
+        this.powerupImageGroup.add(this.tripleBallImg)
+        const ball1 = this.initBall(320, 50)
+        const ball2 = this.initBall(420, 50)
         ball1.trueball = false
         ball2.trueball = false
-
         this.balls.add(ball1)
         this.balls.add(ball2)
-        // console.log(this.balls)
-        this.physics.add.collider(ball1, this.paddle, this.handlePaddleCollision, null, this);
-        this.physics.add.collider(ball1, this.bricks, this.brickIsHit, null, this)
-        this.physics.add.collider(ball2, this.paddle, this.handlePaddleCollision, null, this);
-        this.physics.add.collider(ball2, this.bricks, this.brickIsHit, null, this)
-    }
 
-    return_bullet()
-    {
-        if(this.powerUpGunsFlag === 0 && this.okayToShoot === 1)
-        {
-            this.okayToShoot = 0;
-            console.log(this.okayToShoot)
-            const laserBullet = this.add.image(this.paddle.x, this.paddle.y, 'laser').setScale(0.05);
-            laserBullet.rotation = Phaser.Math.DegToRad(-90)
-            this.physics.add.existing(laserBullet);
-            laserBullet.body.setVelocity(0,-300);
-            this.bullets.add(laserBullet)
-        }
-        setTimeout(() => {
-            this.okayToShoot = 1;
-          }, 300);
     }
 
     guns(powerup)
     {
+        this.initBulletImgs()
         this.powerupSound.play();
-        powerup.destroy()
+        this.okayToShoot = 1
+        this.bulletsLeft = 10
     }
 
-
-    dropPowerup(x, y, type) 
+    return_bullet()
     {
-        /** @type  {Phaser.Physics.Arcade.Sprite}*/
-        const powerup = this.add.sprite(x, y, 'powerupBlock').setScale(1);
-        this.physics.add.existing(powerup);
-        powerup.body.setVelocity(0,70);
-        powerup.anims.play('powerupBrick');
-        if(type === "ball")
+        if(this.powerUpGunsFlag === 1 && this.okayToShoot === 1 && this.bulletsLeft > 0)
         {
-            this.physics.add.collider(this.paddle, powerup, () => this.biggerBall(powerup), null, this);
-        }
-        else if(type === "padel")
-        {
-            this.physics.add.collider(this.paddle, powerup, () => this.biggerPadel(powerup), null, this);
-        }
-        else if(type === "tripleBall")
-        {
-            this.physics.add.collider(this.paddle, powerup, () => this.tripleBall(powerup), null, this);
-        }
-        else if(type === "guns")
-        {
-            this.physics.add.collider(this.paddle, powerup, () => this.guns(powerup), null, this);
+            this.okayToShoot = 0;
+            this.bulletsLeft -= 1
+            let bulletImgDestory = this.bulletImgGroup.children.entries[this.bulletsLeft]
+            bulletImgDestory.destroy()
+            // console.log(this.okayToShoot)
+            const laserBullet = this.add.image(this.paddle.x, this.paddle.y, 'laser').setScale(0.7);
+            laserBullet.rotation = Phaser.Math.DegToRad(-90)
+            this.physics.add.existing(laserBullet);
+            laserBullet.body.setVelocity(0,-300);
+            this.bullets.add(laserBullet)
+            setTimeout(() => {
+                this.okayToShoot = 1
+                if(this.bulletsLeft <= 0)
+                {
+                    this.powerUpGunsFlag = 0
+                }
+            }, 1000)
         }
 
-    return powerup;
     }
 
     generatePowerup(brick)
@@ -448,10 +488,34 @@ export default class Game extends Phaser.Scene{
         else if(rand === 17 && this.powerUpGunsFlag === 0)
         {
             this.dropPowerup(x, y, "guns") 
-            // this.powerUpGunsFlag = 1;
+            this.powerUpGunsFlag = 1;
         }
 
     }
+
+    dropPowerup(x, y, type) 
+    {
+        /** @type  {Phaser.Physics.Arcade.Sprite}*/
+        const powerup = this.add.sprite(x, y, 'powerupBlock').setScale(1);
+        powerup.setOrigin(0.5,0.5)
+        this.physics.add.existing(powerup);
+        powerup.body.setVelocity(0,70);
+        powerup.powerupType = type
+
+        const qMark = this.add.image(x,y, 'qmark')
+        qMark.setOrigin(0.5,0.5)
+        this.physics.add.existing(qMark);
+        qMark.body.setVelocity(0,70);
+
+        powerup.anims.play('powerupBrick');
+
+        this.powerupGroup.add(powerup)
+        this.powerupGroup.add(qMark)
+
+        return powerup;
+
+    }
+
 
     brickIsHit(ball, brick)
     {   
@@ -466,11 +530,12 @@ export default class Game extends Phaser.Scene{
         {
             brick.destroy();
             this.brickExplodeSound.play();
-            this.explodeAnimation(brick.x, brick.y)
+            this.explodeAnimation(brick.x, brick.y, 2)
+            this.updateScore(1)
             this.brickCount --;
             if(this.brickCount <= 0)
             {
-                this.restartGame("win")
+                this.goToNextLevel()
             }
         } 
     }
@@ -479,32 +544,77 @@ export default class Game extends Phaser.Scene{
     {
         brick.destroy();
         this.brickExplodeSound.play();
-        this.explodeAnimation(brick.x, brick.y)
+        this.explodeAnimation(brick.x, brick.y, 2)
+        this.updateScore(1)
         this.brickCount --;
         if(this.brickCount <= 0)
         {
-            this.restartGame("win")
+            this.goToNextLevel()// this.scene.restart({level:this.level += 1, lifes:this.lives})
         }
     }
 
-   restartGame(type)
-   {  
-    this.scene.stop('game');
-    this.scene.restart('game')
-    if(type === "loss")
-    {
-        this.scene.start('lossScreen');
-    }
-    else if(type === "win")
-    {
-        this.scene.start('winScreen');
-    }
-    
+   goToNextLevel()
+   {    
+        this.endGame()
+        this.winSound.play()
+        const congratsText = this.add.text(337, 220, "Congratulations!", {
+            fontSize:48
+        })
+        congratsText.setOrigin(0.5)
+        setTimeout(() => {
+            
+            this.scene.start('countdownScreen', {level:this.level, lifes:this.lives, score:this.score})
+        }, 6000)
    }
 
-    explodeAnimation(x, y)
+   restartGame()
+   {
+        this.endGame()
+        const lossText = this.add.text(337,220, "Better Luck Next Time", {
+            fontSize:48
+        })
+        lossText.setOrigin(0.5)
+    }
+
+    endGame()
     {
-        const explosion = this.add.sprite(x, y, 'explosion').setScale(2);
+        this.music.stop()
+
+        while (this.bricks.getLength() > 0) {
+            let brick = this.bricks.getFirstAlive();
+            brick.destroy();
+        }
+        while (this.bullets.getLength() > 0) {
+            let bullet = this.bullets.getFirstAlive();
+            bullet.destroy();
+        }
+        while (this.balls.getLength() > 0) {
+            let ball = this.balls.getFirstAlive();
+            ball.destroy();
+        }
+        while (this.bulletImgGroup.getLength() > 0) {
+            let bulletImg = this.bulletImgGroup.getFirstAlive();
+            bulletImg.destroy();
+        }
+        while (this.powerupImageGroup.getLength() > 0) {
+            let powerupImg = this.powerupImageGroup.getFirstAlive();
+            powerupImg.destroy();
+        }
+
+        this.explodeAnimation(337, 220, 20)
+        this.brickExplodeSound.play();
+        this.paddle.visible = false;
+    }
+
+    updateScore(toAdd)
+    {
+        this.score += toAdd
+        this.scoreLabel.setText(this.score)
+    }
+
+    explodeAnimation(x, y, scale)
+    {
+        const explosion = this.add.sprite(x, y, 'explosion').setScale(scale);
         explosion.anims.play('explode');
         explosion.once('animationcomplete', () => {
             explosion.destroy();
