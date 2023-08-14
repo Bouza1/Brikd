@@ -158,7 +158,6 @@ export const letters3 =
         [1,1,1,1,1,1,1,1,1,1, "0xff7f2a"],
         [0,1,1,1,0,0,1,1,1,0, "0xff7f2a"]
     ]
-
 ]
 
 export const letters4 = 

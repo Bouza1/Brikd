@@ -179,10 +179,10 @@ export default class Game extends Phaser.Scene{
         });
 
         // Sounds
-        this.brickHitSound = this.sound.add('brickHit');
-        this.powerupSound = this.sound.add('powerupSound');
-        this.brickExplodeSound = this.sound.add('brickExplode');
-        this.winSound = this.sound.add('win');
+        this.brickHitSound = this.sound.add('brickHit', { loop: false,  volume: 0.6 });
+        this.powerupSound = this.sound.add('powerupSound', { loop: false,  volume: 0.6 });
+        this.brickExplodeSound = this.sound.add('brickExplode', { loop: false,  volume: 0.7 });
+        this.winSound = this.sound.add('win', { loop: false,  volume: 0.6 });
         this.music = this.sound.add('bgMusic', { loop: true,  volume: 0.5 }); 
         this.music.play();
 
@@ -228,6 +228,7 @@ export default class Game extends Phaser.Scene{
         if(this.cursors.left.isDown)
         {
             this.paddle.x -= 10
+            this.paddle.setPosition()
             body.updateFromGameObject()
         }
         else if(this.cursors.right.isDown)
@@ -345,7 +346,7 @@ export default class Game extends Phaser.Scene{
         this.lives -= 1
         if(this.lives <= 0)
         {
-            this.restartGame("loss")
+            this.endGame()
         }
         else
         {
@@ -555,31 +556,20 @@ export default class Game extends Phaser.Scene{
 
    goToNextLevel()
    {    
-        this.endGame()
+        this.destroyAllObjects()
         this.winSound.play()
         const congratsText = this.add.text(337, 220, "Congratulations!", {
             fontSize:48
         })
         congratsText.setOrigin(0.5)
         setTimeout(() => {
-            
             this.scene.start('countdownScreen', {level:this.level, lifes:this.lives, score:this.score})
         }, 6000)
    }
 
-   restartGame()
-   {
-        this.endGame()
-        const lossText = this.add.text(337,220, "Better Luck Next Time", {
-            fontSize:48
-        })
-        lossText.setOrigin(0.5)
-    }
-
-    endGame()
+    destroyAllObjects()
     {
         this.music.stop()
-
         while (this.bricks.getLength() > 0) {
             let brick = this.bricks.getFirstAlive();
             brick.destroy();
@@ -605,6 +595,15 @@ export default class Game extends Phaser.Scene{
         this.brickExplodeSound.play();
         this.paddle.visible = false;
     }
+
+    endGame()
+    {
+         this.destroyAllObjects();
+         setTimeout(() => {
+            this.scene.start("endScreen", {score:this.score, level:this.level});
+         },500)
+         
+     }
 
     updateScore(toAdd)
     {
