@@ -81,14 +81,11 @@ export default class GameScreen extends Phaser.Scene{
         }
       
         let colMath = this.doTheMath()
-        let start_x = 0 + colMath[0]
-
-      
+        let start_x = colMath[0]
+        let start_y = this.layout['1row']*1.15
         for(let k = 0; k < letters.length; k++)
         {
             let letter = letters[k]
-            
-            let start_y = 75
             for(let i = 0; i < letter.length; i++)
             {
                 let col = letter[i]
@@ -98,7 +95,7 @@ export default class GameScreen extends Phaser.Scene{
                     let color = col[10]
                     if(col[j] === 1)
                     {
-                        const littleBrick = this.add.rectangle(start_x, start_y, 10, 10, color)
+                        const littleBrick = this.add.rectangle(start_x, start_y, this.scale.brickSize, this.scale.brickSize, color)
                         this.physics.add.existing(littleBrick, true)
                         const randomNumber = Math.random();
                         if (randomNumber < 0.5) {
@@ -109,14 +106,13 @@ export default class GameScreen extends Phaser.Scene{
                         bricks.add(littleBrick);
 
                     }
-                    start_y = start_y+15;
+                    start_y = start_y + this.scale.brickY;
                 }
-                start_x = start_x + colMath[1]
-                start_y = 75
+                start_x = start_x + this.scale.brickX
+                start_y = this.layout['1row']*1.15
             }
             start_x = start_x + colMath[0]
         }
-
         return bricks
     }
 
@@ -217,8 +213,14 @@ export default class GameScreen extends Phaser.Scene{
       this.tripleBallPowerupImage.setAlpha(0.4)
       this.tripleBallPowerupImage.setOrigin(0.5)
       
+      this.colMath = this.doTheMath()
+      this.start_x = this.colMath[0]
 
-
+      this.line1 = this.add.line(0, this.layout['1row']*1.15, 0, 0, this.physics.world.bounds.width*2, 0, 0x6666ff);
+      this.line2 = this.add.line(0, this.layout['1row']*2.85, 0, 0, this.physics.world.bounds.width*2, 0, 0x6666ff);
+      alert(this.layout['1row']*2.85)
+      this.line3 = this.add.line(this.start_x, 0, 0, 0, 0, this.layout.fullY, 0x6666ff);
+      this.line4 = this.add.line((this.start_x*2.1), 0, 0, 0, 0, this.layout.fullY, 0x6666ff);
 
         //Bricks
         this.bricks = this.initBricks(this.level)
@@ -383,7 +385,7 @@ export default class GameScreen extends Phaser.Scene{
 
     resetBall()
     {
-        this.ball.setPosition(300, 240)
+        this.ball.setPosition(this.layout.midX, this.layout['1row']*4)
         let vel = this.genRandomVel()
         this.ball.body.setVelocity(vel[0], vel[1]);
     }
@@ -604,7 +606,8 @@ export default class GameScreen extends Phaser.Scene{
         this.destroyAllObjects()
         this.winSound.play()
         const congratsText = this.add.text(this.layout['midX'], (this.layout['1row']*8)/2, "Congratulations", {
-          fontSize:48,
+          fontSize:this.scale.bigTitle,
+          color:'#ff6600',
           fontFamily:'arcade'
         })
         congratsText.setOrigin(0.5)

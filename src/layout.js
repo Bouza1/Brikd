@@ -5,21 +5,19 @@ function isMobileDevice()
   return(isIOS()||/Mobi|Android|iPhone|iPad|iPod|Windows Phone/i.test(navigator.userAgent));
 }
 
-function isIOS() 
-{
-  if (/iPad|iPhone|iPod/.test(navigator.userAgent)) 
-  {
+function isIOS() {
+  if (/iPad|iPhone|iPod/.test(navigator.platform)) {
     return true;
-  } 
-  else 
-  {
-    return navigator.maxTouchPoints && navigator.maxTouchPoints > 2 && /MacIntel/.test(navigator.platform);
+  } else {
+    return navigator.maxTouchPoints &&
+      navigator.maxTouchPoints > 2 &&
+      /MacIntel/.test(navigator.platform);
   }
 }
 
 export function returnContainerSize(isMobile)
 {
-  const tempHolder = []
+  let tempHolder = []
   if(isMobile)
   {
     tempHolder.push(window.innerWidth * 0.9)
@@ -40,9 +38,9 @@ function returnTitleScreenScales()
   const optimalScreenWidth = 1152;
   const screenWidth = containerSize[0];
   const scaleFactor = screenWidth / optimalScreenWidth;
-  const optimalPlayButton = 160;
-  const optimalControlButton = 140;
-  const optimalLeaderButton = 200;
+  const optimalPlayButton = 160
+  const optimalControlButton = 140
+  const optimalLeaderButton = 200
   const titleBannerScale = 0.7 * scaleFactor;
   const playButtonSize = Math.round(optimalPlayButton * scaleFactor) + 'px';
   const controlButtonSize = Math.round(optimalControlButton * scaleFactor) + 'px';
@@ -93,14 +91,20 @@ function returnGameScreenScales()
   const optimalBigTitle = 70;
   const optimalMedTitle = 55;
   const optimalXsTitle = 40;
-  const optimalPowerUpImage = 0.3;
-  const optimalXLPadel = 0.4;
+  const optimalPowerUpImage = 0.3
+  const optimalXLPadel = 0.4
   const xsTitle = Math.round(optimalXsTitle * scaleFactor) + 'px';
   const bigTitle = Math.round(optimalBigTitle * scaleFactor) + 'px';
   const medTitle = Math.round(optimalMedTitle * scaleFactor) + 'px';
   const powerupImageBig = optimalPowerUpImage * scaleFactor;
-  const xlPadelImage = optimalXLPadel * scaleFactor;
-  return {'bigTitle':bigTitle, 'medTitle':medTitle,  'powerupImageBig':powerupImageBig, 'xlPadelImage':xlPadelImage, "xsTitle":xsTitle} 
+  const xlPadelImage = optimalXLPadel * scaleFactor
+  const optimalBrickSize = 10;
+  const brickSize = optimalBrickSize * scaleFactor;
+  const optimalBrickSpacingY = 15
+  const brickY = optimalBrickSpacingY * scaleFactor;
+  const optimalBrickSpacingX = 16.95
+  const brickX = optimalBrickSpacingX * scaleFactor; 
+  return {'bigTitle':bigTitle, 'medTitle':medTitle,  'powerupImageBig':powerupImageBig, 'xlPadelImage':xlPadelImage, "xsTitle":xsTitle, 'brickSize':brickSize, 'brickY':brickY, 'brickX':brickX} 
 }
 
 export const layoutObj = 
