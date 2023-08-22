@@ -1,1 +1,2 @@
-![titleBanner](https://github.com/Bouza1/Brikd/assets/97123953/f48cda54-c1bd-4462-b111-fa2d3d7a9b82)
+
+![titleBannerGithub](https://github.com/Bouza1/Brikd/assets/97123953/828daa68-4a16-4324-8f17-63a96150e586)
