@@ -1,71 +1,94 @@
-import Phaser from "phaser";
-import { letters1, letters2, letters3, letters4, randGeneratedLevel } from "./levels";
+import { letters1, letters2, letters3, randGeneratedLevel } from "./levels.js";
 
-export default class Game extends Phaser.Scene{
+export default class GameScreen extends Phaser.Scene{
     
-    // Add powerup images to a group so can be destoryed as one when scene ends
-    // Add powerup padel and 10 bullet images, every shot minus a bullet image
     init(data)
     {
-        this.lives = data.lifes || 10;
-        this.level = data.level || 0
-        this.score = data.score || 0
-        this.okayToShoot = 0
-        this.bulletsLeft = 0
+      this.lives = data.lifes || 10;
+      this.level = data.level || 0
+      this.score = data.score || 0
+      this.mobile = data.mobile || false
+      this.layout = data.layout
+      this.scale = data.layout.gameScreen
+      this.okayToShoot = 0
+      this.bulletsLeft = 0
     }  
     
     preload()
     {
-        this.load.image('heart', './assets/heart2.png');
-        this.load.image('qmark', './assets/rainbowQ.png');
-        this.load.image('laser', './assets/bullet3.png')
-        this.load.image('paddel', './assets/paddel.png')
-        this.load.image('bottomBar', './assets/bottombar.png')
-        this.load.image('bigBall', './assets/bigball.png')
-        this.load.image('tripleBallImg', './assets/tripleBall.png')
-        this.load.image('bigPadelImg', './assets/bigPadel.png')
-        this.load.spritesheet('explosion', './assets/explosion.png', {
+        this.load.image('heart', './static/assets/heart2.png');
+        this.load.image('qmark', './static/assets/rainbowQ.png');
+        this.load.image('bullet', './static/assets/bulletPowerup.png')
+        this.load.image('paddel', './static/assets/paddel.png')
+
+        this.load.image('bigBall', './static/assets/bigball.png')
+        this.load.image('tripleBallImg', './static/assets/tripleBall.png')
+        this.load.image('bigPadelImg', './static/assets/XLPADEL.png')
+      
+        this.load.spritesheet('explosion', './static/assets/explosion.png', {
             frameWidth: 16,
             frameHeight: 16,
             startFrame: 0,
             endFrame: 17 - 1
         });
-        this.load.spritesheet('powerupBlock', "./assets/rainbowBlock.png", {
+        this.load.spritesheet('powerupBlock', "./static/assets/rainbowBlock.png", {
             frameWidth:20,
             frameHeight:20,
             startFrame:0,
             endFrame:24
         })
 
-        this.load.audio('brickHit', './assets/hit.mp3');
-        this.load.audio('brickExplode', './assets/bomb.mp3');
-        this.load.audio('powerupSound', './assets/bonus.mp3');
-        this.load.audio('bgMusic', './assets/music.mp3')
-        this.load.audio('win', './assets/win_loud.mp3');
+        this.load.audio('brickHit', './static/assets/hit.mp3');
+        this.load.audio('brickExplode', './static/assets/bomb.mp3');
+        this.load.audio('powerupSound', './static/assets/bonus.mp3');
+        this.load.audio('bgMusic', './static/assets/music.mp3')
+        this.load.audio('win', './static/assets/win_loud.mp3');
+      
         this.scene.stop('countdownScreen');
+
+        this.loadFont('arcade', 'static/assets/ARCADE.TTF')
     }
 
+    doTheMath()
+    {
+      let colWidth = this.physics.world.bounds.width/12
+      let oneColInCol = colWidth/5.52
+      return [colWidth, oneColInCol]
+    }
 
+    loadFont(name, url) {
+    var newFont = new FontFace(name, `url(${url})`);
+    newFont.load().then(function (loaded) {
+        document.fonts.add(loaded);
+    }).catch(function (error) {
+        return error;
+      });
+    }
+  
     initBricks(level)
     {
         const bricks = this.add.group();
         let letters = ""
-        if(level <= 1)
+        
+        if(level <= 2)
         {
-            let levelObj = [letters1, letters2, letters3, letters4]
+            let levelObj = [letters1, letters2, letters3]
             letters = levelObj[level]
         }
         else
         {
             letters = randGeneratedLevel()
         }
+      
+        let colMath = this.doTheMath()
+        let start_x = 0 + colMath[0]
 
-        let start_x = 60
+      
         for(let k = 0; k < letters.length; k++)
         {
             let letter = letters[k]
             
-            let start_y = 45
+            let start_y = 75
             for(let i = 0; i < letter.length; i++)
             {
                 let col = letter[i]
@@ -88,10 +111,10 @@ export default class Game extends Phaser.Scene{
                     }
                     start_y = start_y+15;
                 }
-                start_x = start_x + 15
-                start_y = 45
+                start_x = start_x + colMath[1]
+                start_y = 75
             }
-            start_x = start_x + 15
+            start_x = start_x + colMath[0]
         }
 
         return bricks
@@ -111,10 +134,10 @@ export default class Game extends Phaser.Scene{
         return hearts
     }
 
-    initBall(x, y)
+    initBall(x, y, color)
     {
 
-        let ball = this.add.image(x, y, 'bigBall').setScale(0.4)
+        let ball = this.add.circle(x, y, 10, color)
         ball.strength = 1
         this.physics.add.existing(ball)
         ball.body.setBounce(1)
@@ -125,50 +148,98 @@ export default class Game extends Phaser.Scene{
     }
 
     create()
-    { 
-        //Bottom Bar
-        this.bottombar = this.add.image(337.5, 490, 'bottomBar').setScale(0.5)
+    {
+        // Groups
+        this.bullets = this.add.group()
+        this.powerupGroup = this.add.group()
+        this.bulletImgGroup = this.add.group()
+        this.powerupImageGroup = this.add.group()
+        // ---------------------------- Bottom Bar Section ---------------------------- 
+        // Bottom Bar Collider
+        this.bottombar = this.add.line(0, this.layout['1row']*8, 0, 0, this.physics.world.bounds.width*2, 0, 0x6666ff);
         this.bottombar.setOrigin(0.5)
         this.physics.add.existing(this.bottombar, true)
-    
-        this.scoreLabel = this.add.text(580, 515, this.score,{
-            fontSize:50
+        // Level Title 
+        this.levelTitleLabel = this.add.text(this.layout['1col']*1.5, this.layout['1row']*8.6, "Level", {
+          fontSize:this.scale.bigTitle,
+          fontFamily:'arcade',
+          color:'#00aad4'
+        })
+        this.levelTitleLabel.setOrigin(0.5)
+        // Actual Level
+        this.levelLabel = this.add.text(this.layout['1col']*1.5, this.layout['1row']*9.4, Number(this.level)+1, {
+        fontSize:this.scale.medTitle,
+        fontFamily:'arcade',
+        color:'#00aad4'
+      })
+        this.levelLabel.setOrigin(0.5)
+      // Score Title
+        this.scoreTitleLabel = this.add.text(this.layout['1col']*8.5, this.layout['1row']*8.6, "Score", {
+          fontSize:this.scale.bigTitle,
+          fontFamily:'arcade',
+          color:'#00aad4'
+        })
+        this.scoreTitleLabel.setOrigin(0.5)
+      // Actual Score
+        this.scoreLabel = this.add.text(this.layout['1col']*8.5, this.layout['1row']*9.4, this.score,{
+          fontSize:this.scale.medTitle,
+          fontFamily:'arcade',
+          color:'#00aad4'
         })
         this.scoreLabel.setOrigin(0.5)
+      // Powerup Section
+      // Powerup Title
+      this.powerupTitle = this.add.text(this.layout['midX'], this.layout['1row']*8.6, "Powerups", {
+        fontSize:this.scale.bigTitle,
+        fontFamily:'arcade',
+        color:'#ff6600'
+      })
+      this.powerupTitle.setOrigin(0.5)
+      // Big Ball Image
+      this.bigBallPowerupImg = this.add.image(this.layout['1col']*3, this.layout['1row']*9.4, 'bigBall').setScale(this.scale.powerupImageBig)
+      this.bigBallPowerupImg.setAlpha(0.4)
+      this.bigBallPowerupImg.setOrigin(0.5)
+      //Bullet Image
+      this.bulletPowerUpImage = this.add.image(this.layout['1col']*4.3, this.layout['1row']*9.4, 'bullet').setScale(this.scale.powerupImageBig)
+      this.bulletPowerUpImage.setAlpha(0.4)
+      this.bulletPowerUpImage.setOrigin(0.5)
+      this.bulletsLeftText = this.add.text(this.layout['1col']*4.3, this.layout['1row']*9.4, '', {
+        fontFamily:'arcade',
+        fontSize:this.scale.xsTitle,
+        color:'#00aad4'
+      })
+      // XL Padel Image
+      this.bigPadelImage = this.add.image(this.layout['1col']*5.6, this.layout['1row']*9.4, 'bigPadelImg').setScale(this.scale.xlPadelImage)
+      this.bigPadelImage.setOrigin(0.5)
+      this.bigPadelImage.setAlpha(0.4)
+      // Triple Ball Image
+      this.tripleBallPowerupImage = this.add.image(this.layout['1col']*6.9, this.layout['1row']*9.4, 'tripleBallImg').setScale(this.scale.powerupImageBig)
+      this.tripleBallPowerupImage.setAlpha(0.4)
+      this.tripleBallPowerupImage.setOrigin(0.5)
+      
 
-        this.levelLabel = this.add.text(95, 515, Number(this.level)+1, {
-            fontSize:50
-        })
-        this.levelLabel.setOrigin(0.5)
 
 
-        this.physics.world.setBounds(0, 0, 680, 500)
-        
         //Bricks
         this.bricks = this.initBricks(this.level)
         this.brickCount = this.bricks.children.entries.length
-
+      
+        this.physics.world.setBounds(0, 0, this.physics.world.bounds.width, this.physics.world.bounds.height)
+      
         //Lives
         this.hearts = this.initLives()
 
         //Padel
-        this.paddle = this.add.image(337.5, 400, 'paddel');
+        this.paddle = this.add.image(this.layout['midX'], this.layout['1row']*7.7, 'paddel');
         this.paddle.setOrigin(0.5)
         this.physics.add.existing(this.paddle, true)
 
         //Balls & Ball
         this.balls = this.add.group();
-        this.ball = this.initBall(337.5, 220)
-        // // this.ball = this.add.image(260, 250, 'bigBall').setScale(0.4)
-        // // this.ball = this.add.circle(260, 250, 6, 0xffffff, 1)
-        // this.ball.strength = 1
+        this.ball = this.initBall(this.layout['midX'], this.layout['1col']*5, '0xffe680')
         this.ball.trueball = true
-        // this.physics.add.existing(this.ball)
-        // this.ball.body.setBounce(1)
-        // this.ball.body.setCollideWorldBounds(true)
-        // this.resetBall()
-        // this.ball.checkWorldBounds = true;
         this.balls.add(this.ball)
+      
         //Explosion Animation
         this.anims.create({
             key: 'explode',
@@ -199,12 +270,7 @@ export default class Game extends Phaser.Scene{
             repeat: -1,
             hideOnComplete: true
         });
-        
-        // Groups
-        this.bullets = this.add.group()
-        this.powerupGroup = this.add.group()
-        this.bulletImgGroup = this.add.group()
-        this.powerupImageGroup = this.add.group()
+      
 
         //Colliders
         /** @type  {Phaser.Physics.Arcade.Body}*/
@@ -217,7 +283,8 @@ export default class Game extends Phaser.Scene{
 
         // Controls
         this.cursors = this.input.keyboard.createCursorKeys();
-
+        this.input.addPointer(3);
+        
     }
 
     update()
@@ -225,52 +292,67 @@ export default class Game extends Phaser.Scene{
         //Controls
         /** @type {Phaser.Physics.Arcade.StaticBody} */
         const body = this.paddle.body;
-        if(this.cursors.left.isDown)
+      
+        if (this.cursors.left.isDown) 
         {
-            this.paddle.x -= 10
-            this.paddle.setPosition()
-            body.updateFromGameObject()
-        }
-        else if(this.cursors.right.isDown)
+          this.movePadel(-1); 
+          body.updateFromGameObject()
+        } 
+        else if (this.cursors.right.isDown) 
         {
-            this.paddle.x += 10
-            body.updateFromGameObject()
+          this.movePadel(1);
+          body.updateFromGameObject()
         }
-
-        this.input.keyboard.on('keyup-SPACE', this.return_bullet, this);
-
-        this.bullets.getChildren().forEach(bullet => {
-            if (bullet.y === 0) 
-            {
-                bullet.destroy()
-            }
-        })
-
-        this.stopPaddleExitingWorld.call(this);
+      
+        this.input.keyboard.on('keyup-SPACE', this.returnBullet, this);
+      
+        this.input.on('pointermove', function (pointer) {
+          let tapX = pointer.x;
+          this.paddle.setPosition(pointer.x, this.paddle.y)
+          this.paddle.body.updateFromGameObject()
+        }, this);
+        
+      if(this.mobile)
+      {
+        if(this.input.pointer2.isDown)
+        {
+          this.returnBullet()
+        }
+      }
+      else
+      {
+        this.input.on('pointerdown', function()
+        {
+          this.returnBullet()
+        }, this)
+      }
     }
 
-    stopPaddleExitingWorld() {
-        this.paddle.x = Phaser.Math.Clamp(this.paddle.x, this.paddle.width/2 , 675 - this.paddle.width/2);
-    }
-
-    initBulletImgs()
+    movePadel(direction)
     {
-        let startX = 308
-        for(let i = 0; i < 10; i++)
-        {
-            let bulletImage = this.add.image(startX, 500, 'laser').setScale(0.05)
-            bulletImage.rotation = Phaser.Math.DegToRad(-90)
-            startX += 7.2
-            bulletImage.value = i
-            this.bulletImgGroup.add(bulletImage)
-        }
+      let speed = 8;
+      this.paddle.x += speed * direction;
+      this.stopPaddleExitingWorld(this);
     }
+  
+    stopPaddleExitingWorld() {
+        this.paddle.x = Phaser.Math.Clamp(this.paddle.x, this.paddle.width/2 , this.layout['1col']*10 - this.paddle.width/2);
+    }
+
 
     handleDeadBall(bottomBar, ball)
     {
         this.explodeAnimation(ball.x, ball.y, 2)
         if(ball.trueball === true)
         {
+          if(ball.strength === 2)
+          {
+            this.bigBallPowerupImg.setAlpha(0.4)
+            this.ball.setRadius(10)
+            this.ball.body.setCircle(10);
+            this.ball.strength = 1
+            this.powerupBallFlag = 0
+          }
             this.resetBall()
             this.minusLife()
         }
@@ -279,7 +361,7 @@ export default class Game extends Phaser.Scene{
             this.powerUpTripleFlag -= 1
             if(this.powerUpTripleFlag <= 0)
             {
-                this.tripleBallImg.destroy()
+                this.tripleBallPowerupImage.setAlpha(0.4)
             }
             ball.destroy()
         }
@@ -294,34 +376,10 @@ export default class Game extends Phaser.Scene{
         }
     }
     
-    handlePaddleCollision(ball, paddle) {
-        const relativeX = ball.x - paddle.x;
-        const normalizedRelativeX = (relativeX / paddle.width); 
-        const easierCheck = normalizedRelativeX * 100
-        //rightside of paddle is positive number leftside of paddle is negative
-        if (easierCheck >= 0) 
-        {
-            if(easierCheck > 20) 
-            {
-                ball.body.setVelocityX(160)
-            }
-            else
-            {
-                ball.body.setVelocityX(60)
-            }
-        }
-        else if(easierCheck < 0) 
-        {
-            if(easierCheck > -20) 
-            {
-                ball.body.setVelocityX(-60)
-            }
-            else
-            {
-                ball.body.setVelocityX(-160)
-            }
-        }
-}
+    handlePaddleCollision(ball, paddle) 
+    {
+      ball.body.velocity.x = -5 * (paddle.x - ball.x)
+    }
 
     resetBall()
     {
@@ -388,78 +446,65 @@ export default class Game extends Phaser.Scene{
     biggerBall()
     {
         this.powerupSound.play();
-        this.ball.setScale(0.6)
+        this.bigBallPowerupImg.setAlpha(1)
+        this.ball.setRadius(20)
+        this.ball.body.setCircle(20);
         this.ball.strength = 2
-        this.bigBall = this.add.image(410, 490, 'bigBall');
-        this.bigBall.setOrigin(0.5)
-        this.powerupImageGroup.add(this.bigBall)
-        setTimeout(() => {
-            this.bigBall.destroy()
-            this.ball.setScale(0.4)
-            this.ball.strength = 1
-            this.powerupBallFlag = 0
-          }, 15000);
     }
 
     biggerPadel()
     {
         this.powerupSound.play();
         this.paddle.setScale(2, 1)
-        this.bigPadelImage = this.add.image(341, 475, 'bigPadelImg');
-        this.bigPadelImage.setOrigin(0.5)
-        this.powerupImageGroup.add(this.bigPadelImage)
+        this.bigPadelImage.setAlpha(1)
         setTimeout(() => {
             this.paddle.setScale(1, 1)
             this.powerupPadelFlag = 0
-            this.bigPadelImage.destroy()
+            this.bigPadelImage.setAlpha(0.4)
           }, 15000);
           
     }
 
-
     tripleBall()
     {
         this.powerupSound.play();
-
-        this.tripleBallImg = this.add.image(270, 490, 'tripleBallImg');
-        this.tripleBallImg.setOrigin(0.5)
-        this.powerupImageGroup.add(this.tripleBallImg)
-        const ball1 = this.initBall(320, 50)
-        const ball2 = this.initBall(420, 50)
+        const ball1 = this.initBall(this.layout['1col']*3.5, this.layout['1row'], '0xde8787')
+        const ball2 = this.initBall(this.layout['1col']*7, this.layout['1row'], '0xde8787')
         ball1.trueball = false
         ball2.trueball = false
         this.balls.add(ball1)
         this.balls.add(ball2)
+      this.tripleBallPowerupImage.setAlpha(1)
 
     }
 
     guns(powerup)
     {
-        this.initBulletImgs()
-        this.powerupSound.play();
-        this.okayToShoot = 1
-        this.bulletsLeft = 10
+      this.powerupSound.play();
+      this.bulletPowerUpImage.setAlpha(1)
+      this.okayToShoot = 1
+      this.bulletsLeft = 9
+      this.bulletsLeftText.setText(this.bulletsLeft)
     }
 
-    return_bullet()
+    returnBullet()
     {
         if(this.powerUpGunsFlag === 1 && this.okayToShoot === 1 && this.bulletsLeft > 0)
         {
             this.okayToShoot = 0;
             this.bulletsLeft -= 1
-            let bulletImgDestory = this.bulletImgGroup.children.entries[this.bulletsLeft]
-            bulletImgDestory.destroy()
-            // console.log(this.okayToShoot)
-            const laserBullet = this.add.image(this.paddle.x, this.paddle.y, 'laser').setScale(0.7);
-            laserBullet.rotation = Phaser.Math.DegToRad(-90)
-            this.physics.add.existing(laserBullet);
-            laserBullet.body.setVelocity(0,-300);
-            this.bullets.add(laserBullet)
+            this.bulletsLeftText.setText(this.bulletsLeft)
+            const bullet = this.add.image(this.paddle.x, this.paddle.y, 'bullet').setScale(0.3);
+            this.physics.add.existing(bullet);
+            bullet.body.setVelocity(0,-300);
+            this.bullets.add(bullet)
             setTimeout(() => {
                 this.okayToShoot = 1
                 if(this.bulletsLeft <= 0)
                 {
-                    this.powerUpGunsFlag = 0
+                  this.powerUpGunsFlag = 0
+                  this.bulletsLeftText.setText('')
+                  this.bulletPowerUpImage.setAlpha(0.4)
                 }
             }, 1000)
         }
@@ -550,7 +595,7 @@ export default class Game extends Phaser.Scene{
         this.brickCount --;
         if(this.brickCount <= 0)
         {
-            this.goToNextLevel()// this.scene.restart({level:this.level += 1, lifes:this.lives})
+            this.goToNextLevel()
         }
     }
 
@@ -558,12 +603,13 @@ export default class Game extends Phaser.Scene{
    {    
         this.destroyAllObjects()
         this.winSound.play()
-        const congratsText = this.add.text(337, 220, "Congratulations!", {
-            fontSize:48
+        const congratsText = this.add.text(this.layout['midX'], (this.layout['1row']*8)/2, "Congratulations", {
+          fontSize:48,
+          fontFamily:'arcade'
         })
         congratsText.setOrigin(0.5)
         setTimeout(() => {
-            this.scene.start('countdownScreen', {level:this.level, lifes:this.lives, score:this.score})
+            this.scene.start('countdownScreen', {level:this.level, lifes:this.lives, score:this.score, layout:this.layout})
         }, 6000)
    }
 
@@ -582,16 +628,11 @@ export default class Game extends Phaser.Scene{
             let ball = this.balls.getFirstAlive();
             ball.destroy();
         }
-        while (this.bulletImgGroup.getLength() > 0) {
-            let bulletImg = this.bulletImgGroup.getFirstAlive();
-            bulletImg.destroy();
-        }
         while (this.powerupImageGroup.getLength() > 0) {
             let powerupImg = this.powerupImageGroup.getFirstAlive();
             powerupImg.destroy();
         }
-
-        this.explodeAnimation(337, 220, 20)
+        this.explodeAnimation(this.layout['midX'], this.layout['1row']*5, 20)
         this.brickExplodeSound.play();
         this.paddle.visible = false;
     }
@@ -600,7 +641,7 @@ export default class Game extends Phaser.Scene{
     {
          this.destroyAllObjects();
          setTimeout(() => {
-            this.scene.start("endScreen", {score:this.score, level:this.level});
+            this.scene.start("endScreen", {score:this.score, level:this.level, layout:this.layout});
          },500)
          
      }

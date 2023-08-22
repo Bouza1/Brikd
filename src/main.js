@@ -1,15 +1,14 @@
-import Phaser from 'phaser'
-import TitleScreen from './scenes/titleScreen'
-import Game from './scenes/game'
-import GameBackground from './scenes/gameBackground'
-import EndScreen from './scenes/endScreen'
-import CountDownScreen from './scenes/countdownScreen'
-import ControlsScreen from './scenes/controlsScreen'
+import TitleScreen from './scenes/titleScreen.js'
+import CountDownScreen from './scenes/countdownScreen.js'
+import GameScreen from './scenes/gameScreen.js'
+import ControlsScreen from './scenes/controlsScreen.js'
+import EndScreen from './scenes/endScreen.js'
+import { layoutObj } from "./layout.js";
 
 const config = 
 {
-    width: 675,
-    height:540,
+    width:layoutObj.fullX,
+    height:layoutObj.fullY,
     parent: 'game-container',
     type: Phaser.AUTO,
     backgroundColor:'#000000',
@@ -25,10 +24,10 @@ const config =
 const game = new Phaser.Game(config)
 
 game.scene.add('titleScreen', TitleScreen)
-game.scene.add('game-background', GameBackground)
-game.scene.add('game', Game)
-game.scene.add('endScreen', EndScreen)
-game.scene.add('countdownScreen', CountDownScreen)
 game.scene.add('controlsScreen', ControlsScreen)
-// game.scene.start('countdownScreen', {level:-1, lifes:10})
-game.scene.start('endScreen', {})
+game.scene.add('countdownScreen', CountDownScreen)
+game.scene.add('game', GameScreen)
+game.scene.add('endScreen', EndScreen)
+
+
+game.scene.start('titleScreen', {mobile:layoutObj.mobile, layout:layoutObj})

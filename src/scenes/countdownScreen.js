@@ -1,77 +1,108 @@
-import Phaser from 'phaser'
-
 export default class CountDownScreen extends Phaser.Scene{
     init(data)
     {
-        this.level = data.level || 0
-        this.lives = data.lifes || 10
-        this.score = data.score || 0
-        this.countdownValue = 4
+      this.level = data.level || 0
+      this.lives = data.lifes || 10
+      this.score = data.score || 0
+      this.layout = data.layout
+      this.scale = data.layout.countdownScreen
+      this.mobile = data.mobile || false
+      this.countdownValue = 4
     }
     preload()
     {
-        this.load.audio('countdown', './assets/countdown1.wav');
-        this.load.image('bottomBar', './assets/bottombar.png')
-        this.load.image("3", "./assets/3.png")
-        this.load.image("2", "./assets/2.png")
-        this.load.image("1", "./assets/1.png")
-        this.load.image("go", "./assets/go.png")
+        this.load.audio('countdownSound', './static/assets/countdown.wav');
+        this.loadFont('arcade', 'static/assets/ARCADE.TTF')
     }
 
     create()
     {
-        this.countdownSound = this.sound.add('countdown', { loop: false,  volume: 0.6 })
-
-        this.bottombar = this.add.image(337.5, 490, 'bottomBar').setScale(0.5)
-        this.bottombar.setOrigin(0.5)
-    
-        this.scoreLabel = this.add.text(580, 515, this.score,{
-            fontSize:50
-        })
-        this.scoreLabel.setOrigin(0.5)
-
-        this.levelLabel = this.add.text(95, 515, Number(this.level)+2, {
-            fontSize:50
-        })
-        this.levelLabel.setOrigin(0.5)
-
-        this.countdown()
+      // ---------------------------- Bottom Bar Section ---------------------------- 
+      // Bottom Bar Collider
+      this.bottombar = this.add.line(0, this.layout['1row']*8, 0, 0, this.physics.world.bounds.width*2, 0, 0x6666ff);
+      this.bottombar.setOrigin(0.5)
+      this.physics.add.existing(this.bottombar, true)
+      // Level Title 
+      this.levelTitleLabel = this.add.text(this.layout['1col']*1.5, this.layout['1row']*8.6, "Level", {
+        fontSize:this.scale.bigTitle,
+        fontFamily:'arcade',
+        color:'#00aad4'
+      })
+      this.levelTitleLabel.setOrigin(0.5)
+      // Actual Level
+      this.levelLabel = this.add.text(this.layout['1col']*1.5, this.layout['1row']*9.4, Number(this.level)+2, {
+        fontSize:this.scale.xsTitle,
+        color:'#00aad4'
+      })
+      this.levelLabel.setOrigin(0.5)
+      // Score Title
+      this.scoreTitleLabel = this.add.text(this.layout['1col']*8.5, this.layout['1row']*8.6, "Score", {
+        fontSize:this.scale.bigTitle,
+        fontFamily:'arcade',
+        color:'#00aad4'
+      })
+      this.scoreTitleLabel.setOrigin(0.5)
+      // Actual Score
+      this.scoreLabel = this.add.text(this.layout['1col']*8.5, this.layout['1row']*9.4, this.score,{
+        fontSize:this.scale.xsTitle,
+        color:'#00aad4'
+      })
+      this.scoreLabel.setOrigin(0.5)
+      // Powerup Section
+      // Powerup Title
+      this.powerupTitle = this.add.text(this.layout['midX'], this.layout['1row']*8.6, "Powerups", {
+        fontSize:this.scale.bigTitle,
+        fontFamily:'arcade',
+        color:'#ff6600'
+      })
+      this.powerupTitle.setOrigin(0.5)
+      // ---------------------------- Count Down Section ---------------------------- 
+      this.countdownSound = this.sound.add('countdownSound', { loop: false,  volume: 0.6 })
+      this.countdown()
     }
 
-    upload()
+    update()
     {
 
     }
 
+    loadFont(name, url) {
+    let newFont = new FontFace(name, `url(${url})`);
+    newFont.load().then(function (loaded) {
+        document.fonts.add(loaded);
+    }).catch(function (error) {
+        return error;
+      });
+    }
+  
     countdown()
     {
-        this.number3 = this.add.image(337.5, 220, '3').setScale(0.5)
-        this.number3.setOrigin(0.5)
+        this.number = this.add.text(this.layout['midX'], (this.layout['1row']*8)/2, '3', {
+          fontFamily:'arcade',
+          fontSize:this.scale.countdownText,
+          color:'#00aad4'
+        })
+        this.number.setOrigin(0.5)
         this.countdownValue -= 1
         this.countdownSound.play()
         setTimeout(() =>
         {
             this.countdownValue -= 1
-            this.number3.destroy()
-            this.number2 = this.add.image(337.5, 220, '2').setScale(0.5)
-            this.number2.setOrigin(0.5)
+            this.number.setText("2")
         }, 1000)
         setTimeout(() =>
         {
             this.countdownValue -= 1
-            this.number2.destroy()
-            this.number1 = this.add.image(337.5, 220, '1').setScale(0.5)
-            this.number1.setOrigin(0.5)
+            this.number.setText("1")
         }, 2000)
         setTimeout(() =>
         {
-            this.countdownValue = "Go!"
-            this.number1.destroy()
-            this.goText = this.add.image(337.5, 220, 'go').setScale(0.5)
-            this.goText.setOrigin(0.5)
+            this.countdownValue = "Go"
+            this.number.setText("Go")
+            this.number.setColor('#ff6600')
         }, 3000)
         setTimeout(() =>{
-            this.scene.start("game", {level:this.level+1, lifes:this.lives, score:this.score})
+            this.scene.start("game", {level:this.level+1, lifes:this.lives, score:this.score, mobile:this.mobile, layout:this.layout})
         }, 4000)
 
     }
