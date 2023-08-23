@@ -6,6 +6,9 @@ Brikd is a Phaser powered brick breaker game that revitalizes the classic gamepl
 
 Please visit:[ Brikd ](https://brikd.s4820791.repl.co/) to see the game in action.
 
+## Demo:
+https://github.com/Bouza1/Brikd/assets/97123953/a90702c6-9381-4c4d-bc0c-45b1cb84bcf9
+
 ## Built With:
 - ![HTML5](https://img.shields.io/badge/html5-%23E34F26.svg?style=for-the-badge&logo=html5&logoColor=white)
 - ![Bootstrap](https://img.shields.io/badge/bootstrap-%238511FA.svg?style=for-the-badge&logo=bootstrap&logoColor=white)
@@ -13,9 +16,6 @@ Please visit:[ Brikd ](https://brikd.s4820791.repl.co/) to see the game in actio
 - ![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)
 - ![Flask](https://img.shields.io/badge/flask-%23000.svg?style=for-the-badge&logo=flask&logoColor=white)
 
-## Issues:
-
-
 ## Future Developments:
-- Scalable brick design following the same format as the current functionality
-- Add rotate notification, particularly for tablet devices or any screens of similar size.
+- Add every letter in the alphabet and allow users to create a custom level with any 5/4 letter word they wish.
+- Add Leaderboard and functionallity that follows, including username input on phaser screen.
