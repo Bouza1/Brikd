@@ -15,20 +15,10 @@ function isIOS() {
   }
 }
 
-export function returnContainerSize(isMobile)
-{
-  let tempHolder = []
-  if(isMobile)
-  {
-    tempHolder.push(window.innerWidth * 0.9)
-    tempHolder.push((window.innerWidth)*0.625)
-  }
-  else 
-  {
-    tempHolder.push(window.innerWidth * 0.6)
-    tempHolder.push((window.innerWidth)*0.425)
-  }
-  return tempHolder
+export function returnContainerSize(isMobile) {
+  const factor = isMobile ? 0.9 : 0.6;
+  const heightFactor = isMobile ? 0.625 : 0.425;
+  return [window.innerWidth * factor, window.innerWidth * heightFactor];
 }
 
 
@@ -76,7 +66,7 @@ function returnCountdownScreenScales()
   const scaleFactor = screenWidth / optimalScreenWidth;
   const optimalBigTitle = 70;
   const bigTitle = Math.round(optimalBigTitle * scaleFactor) + 'px';
-  const optimalXsTitle = 40;
+  const optimalXsTitle = 55;
   const xsTitle = Math.round(optimalXsTitle * scaleFactor) + 'px';
   const optimalCountdownText = 240;
   const countdownText = Math.round(optimalCountdownText * scaleFactor) + 'px';
@@ -98,13 +88,31 @@ function returnGameScreenScales()
   const medTitle = Math.round(optimalMedTitle * scaleFactor) + 'px';
   const powerupImageBig = optimalPowerUpImage * scaleFactor;
   const xlPadelImage = optimalXLPadel * scaleFactor
+
   const optimalBrickSize = 10;
   const brickSize = optimalBrickSize * scaleFactor;
+
   const optimalBrickSpacingY = 15
   const brickY = optimalBrickSpacingY * scaleFactor;
+
   const optimalBrickSpacingX = 16.95
   const brickX = optimalBrickSpacingX * scaleFactor; 
+
   return {'bigTitle':bigTitle, 'medTitle':medTitle,  'powerupImageBig':powerupImageBig, 'xlPadelImage':xlPadelImage, "xsTitle":xsTitle, 'brickSize':brickSize, 'brickY':brickY, 'brickX':brickX} 
+}
+
+function returnEndScreenScales()
+{
+  const optimalScreenWidth = 1152;
+  const screenWidth = containerSize[0];
+  const scaleFactor = screenWidth / optimalScreenWidth;
+  const optimalBigTitle = 140;
+  const optimalMedTitle = 90;
+  const optimalCoseButton = 180;
+  const bigTitle = Math.round(optimalBigTitle * scaleFactor) + 'px';
+  const medTitle = Math.round(optimalMedTitle * scaleFactor) + 'px';
+  const closeButton = Math.round(optimalCoseButton * scaleFactor) + 'px';
+  return {'bigTitle':bigTitle, 'medTitle':medTitle, 'closeButton':closeButton} 
 }
 
 export const layoutObj = 
@@ -120,5 +128,5 @@ export const layoutObj =
   "controlsScreen":returnControlsScreenScales(),
   "countdownScreen":returnCountdownScreenScales(),
   "gameScreen":returnGameScreenScales(),
-  "endScreen":"Holder"
+  "endScreen":returnEndScreenScales()
 }
