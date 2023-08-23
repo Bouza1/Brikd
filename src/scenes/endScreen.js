@@ -8,19 +8,19 @@ export default class EndScreen extends Phaser.Scene{
     this.scale = data.layout.endScreen
   }
 
-  loadFont(name, url) {
-    let newFont = new FontFace(name, `url(${url})`);
-    newFont.load().then(function (loaded) {
-        document.fonts.add(loaded);
-    }).catch(function (error) {
-        return error;
-      });
-  }
+  // loadFont(name, url) {
+  //   let newFont = new FontFace(name, `url(${url})`);
+  //   newFont.load().then(function (loaded) {
+  //       document.fonts.add(loaded);
+  //   }).catch(function (error) {
+  //       return error;
+  //     });
+  // }
 
   preload()
   {
     this.load.audio('win', './static/assets/win_loud.mp3');
-    this.loadFont('arcade', 'static/assets/ARCADE.TTF')
+    // this.loadFont('arcade', 'static/assets/ARCADE.TTF')
   }
 
   create()

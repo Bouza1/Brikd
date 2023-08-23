@@ -21,6 +21,17 @@ const config =
     }
 }
 
+function loadFont(name, url) {
+  var newFont = new FontFace(name, `url(${url})`);
+  newFont.load().then(function (loaded) {
+    document.fonts.add(loaded);
+  }).catch(function (error) {
+    return error;
+  });
+}
+
+loadFont('arcade', 'static/assets/ARCADE.TTF')
+
 const game = new Phaser.Game(config)
 
 game.scene.add('titleScreen', TitleScreen)

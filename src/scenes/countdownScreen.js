@@ -12,7 +12,7 @@ export default class CountDownScreen extends Phaser.Scene{
     preload()
     {
         this.load.audio('countdownSound', './static/assets/countdown.wav');
-        this.loadFont('arcade', 'static/assets/ARCADE.TTF')
+        // this.loadFont('arcade', 'static/assets/ARCADE.TTF')
     }
 
     create()
@@ -66,14 +66,14 @@ export default class CountDownScreen extends Phaser.Scene{
 
     }
 
-    loadFont(name, url) {
-    let newFont = new FontFace(name, `url(${url})`);
-    newFont.load().then(function (loaded) {
-        document.fonts.add(loaded);
-    }).catch(function (error) {
-        return error;
-      });
-    }
+    // loadFont(name, url) {
+    // let newFont = new FontFace(name, `url(${url})`);
+    // newFont.load().then(function (loaded) {
+    //     document.fonts.add(loaded);
+    // }).catch(function (error) {
+    //     return error;
+    //   });
+    // }
   
     countdown()
     {

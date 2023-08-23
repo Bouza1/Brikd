@@ -10,21 +10,21 @@ export default class ControlsScreen extends Phaser.Scene{
   
         this.load.image('mobileControls', './static/assets/mobileControls.png');
         this.load.image('desktopControls', './static/assets/desktopControls.png')
-        this.loadFont('arcade', 'static/assets/ARCADE.TTF')
+        // this.loadFont('arcade', 'static/assets/ARCADE.TTF')
         this.load.image('bigBall', './static/assets/bigball.png')
         this.load.image('tripleBallImg', './static/assets/tripleBall.png')
         this.load.image('bigPadelImg', './static/assets/XLPADEL.png')
         this.load.image('bullet', './static/assets/bulletPowerup.png')
       }
   
-      loadFont(name, url) {
-        let newFont = new FontFace(name, `url(${url})`);
-        newFont.load().then(function (loaded) {
-            document.fonts.add(loaded);
-        }).catch(function (error) {
-            return error;
-          });
-      }
+      // loadFont(name, url) {
+      //   let newFont = new FontFace(name, `url(${url})`);
+      //   newFont.load().then(function (loaded) {
+      //       document.fonts.add(loaded);
+      //   }).catch(function (error) {
+      //       return error;
+      //     });
+      // }
     
       create()
       {

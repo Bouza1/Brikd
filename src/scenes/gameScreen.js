@@ -45,19 +45,19 @@ export default class GameScreen extends Phaser.Scene{
       this.load.audio('bgMusic', './static/assets/RhytmicBounceB.mp3')
       this.load.audio('win', './static/assets/win_loud.mp3');
       // Font
-      this.loadFont('arcade', 'static/assets/ARCADE.TTF')
+    //   this.loadFont('arcade', 'static/assets/ARCADE.TTF')
       // Stop Countdown Scene
       this.scene.stop('countdownScreen');
     }
 
-    loadFont(name, url) {
-    var newFont = new FontFace(name, `url(${url})`);
-    newFont.load().then(function (loaded) {
-      document.fonts.add(loaded);
-    }).catch(function (error) {
-      return error;
-      });
-    }
+    // loadFont(name, url) {
+    // var newFont = new FontFace(name, `url(${url})`);
+    // newFont.load().then(function (loaded) {
+    //   document.fonts.add(loaded);
+    // }).catch(function (error) {
+    //   return error;
+    //   });
+    // }
     // Coloumn Math For Letters And Spacing
     doTheMath()
     {
