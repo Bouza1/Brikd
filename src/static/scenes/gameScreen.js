@@ -1,4 +1,4 @@
-import { letters1, letters2, letters3, randGeneratedLevel } from "./levels.js";
+import { letters1, letters2, letters3, returnALevel } from "./levels.js";
 
 export default class GameScreen extends Phaser.Scene{
     //--------------------------------------------------------  Load Section --------------------------------------------------------
@@ -16,48 +16,17 @@ export default class GameScreen extends Phaser.Scene{
     
     preload()
     {
-      // Images
-      this.load.image('heart', './static/assets/heart2.png');
-      this.load.image('qmark', './static/assets/rainbowQ.png');
-      this.load.image('bullet', './static/assets/bulletPowerup.png')
-      this.load.image('paddel', './static/assets/paddel.png')
-      this.load.image('bigBall', './static/assets/bigball.png')
-      this.load.image('tripleBallImg', './static/assets/tripleBall.png')
-      this.load.image('bigPadelImg', './static/assets/XLPADEL.png')
-      
-      // Sprites
-      this.load.spritesheet('explosion', './static/assets/explosion.png', {
-          frameWidth: 16,
-          frameHeight: 16,
-          startFrame: 0,
-          endFrame: 17 - 1
-      });
-      this.load.spritesheet('powerupBlock', "./static/assets/rainbowBlock.png", {
-          frameWidth:20,
-          frameHeight:20,
-          startFrame:0,
-          endFrame:24
-      })
-      // Sounds
-      this.load.audio('brickHit', './static/assets/hit.mp3');
-      this.load.audio('brickExplode', './static/assets/bomb.mp3');
-      this.load.audio('powerupSound', './static/assets/bonus.mp3');
-      this.load.audio('bgMusic', './static/assets/RhytmicBounceB.mp3')
-      this.load.audio('win', './static/assets/win_loud.mp3');
-      // Font
-    //   this.loadFont('arcade', 'static/assets/ARCADE.TTF')
-      // Stop Countdown Scene
       this.scene.stop('countdownScreen');
     }
 
-    // loadFont(name, url) {
-    // var newFont = new FontFace(name, `url(${url})`);
-    // newFont.load().then(function (loaded) {
-    //   document.fonts.add(loaded);
-    // }).catch(function (error) {
-    //   return error;
-    //   });
-    // }
+    loadFont(name, url) {
+    var newFont = new FontFace(name, `url(${url})`);
+    newFont.load().then(function (loaded) {
+      document.fonts.add(loaded);
+    }).catch(function (error) {
+      return error;
+      });
+    }
     // Coloumn Math For Letters And Spacing
     doTheMath()
     {
@@ -70,7 +39,6 @@ export default class GameScreen extends Phaser.Scene{
     {
       const bricks = this.add.group();
       let letters = ""
-      
       if(level <= 2)
       {
         let levelObj = [letters1, letters2, letters3]
@@ -78,9 +46,8 @@ export default class GameScreen extends Phaser.Scene{
       }
       else
       {
-        letters = randGeneratedLevel()
+        letters = returnALevel()
       }
-    
       let colMath = this.doTheMath()
       let start_x = colMath[0]
       let start_y = this.layout['1row']*1.15
@@ -187,7 +154,7 @@ export default class GameScreen extends Phaser.Scene{
       this.powerupSound = this.sound.add('powerupSound', { loop: false,  volume: 0.4 });
       this.brickExplodeSound = this.sound.add('brickExplode', { loop: false,  volume: 0.6 });
       this.winSound = this.sound.add('win', { loop: false,  volume: 0.4 });
-      this.music = this.sound.add('bgMusic', { loop: true,  volume: 0.3 }); 
+      this.music = this.sound.add('bgMusic', { loop: true,  volume: 0.7 }); 
       this.music.play();
       // Powerups
       this.powerupPadelFlag = 0;
@@ -534,7 +501,7 @@ export default class GameScreen extends Phaser.Scene{
       this.powerupSound.play();
       this.bulletPowerUpImage.setAlpha(1)
       this.okayToShoot = 1
-      this.bulletsLeft = 9
+      this.bulletsLeft = 20
       this.bulletsLeftText.setText(this.bulletsLeft)
     }
     // Create Bullet & Shoot
@@ -631,3 +598,5 @@ export default class GameScreen extends Phaser.Scene{
      }
 
 }
+
+
