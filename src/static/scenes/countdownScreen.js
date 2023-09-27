@@ -11,8 +11,7 @@ export default class CountDownScreen extends Phaser.Scene{
     }
     preload()
     {
-        this.load.audio('countdownSound', './static/assets/countdown.wav');
-        // this.loadFont('arcade', 'static/assets/ARCADE.TTF')
+
     }
 
     create()
@@ -22,7 +21,7 @@ export default class CountDownScreen extends Phaser.Scene{
       this.bottombar = this.add.line(0, this.layout['1row']*8, 0, 0, this.physics.world.bounds.width*2, 0, 0x6666ff);
       this.bottombar.setOrigin(0.5)
       this.physics.add.existing(this.bottombar, true)
-      // Level Title 
+      // Level Title
       this.levelTitleLabel = this.add.text(this.layout['1col']*1.5, this.layout['1row']*8.6, "Level", {
         fontSize:this.scale.bigTitle,
         fontFamily:'arcade',
@@ -30,9 +29,10 @@ export default class CountDownScreen extends Phaser.Scene{
       })
       this.levelTitleLabel.setOrigin(0.5)
       // Actual Level
-      this.levelLabel = this.add.text(this.layout['1col']*1.5, this.layout['1row']*9.4, Number(this.level)+2, {
-        fontSize:this.scale.xsTitle,
-        color:'#00aad4'
+      this.levelLabel = this.add.text(this.layout['1col']*1.5, this.layout['1row']*9.4, Number(this.level)+1, {
+      fontSize:this.scale.xsTitle,
+      fontFamily:'arcade',
+      color:'#00aad4'
       })
       this.levelLabel.setOrigin(0.5)
       // Score Title
@@ -45,6 +45,7 @@ export default class CountDownScreen extends Phaser.Scene{
       // Actual Score
       this.scoreLabel = this.add.text(this.layout['1col']*8.5, this.layout['1row']*9.4, this.score,{
         fontSize:this.scale.xsTitle,
+        fontFamily:'arcade',
         color:'#00aad4'
       })
       this.scoreLabel.setOrigin(0.5)
@@ -65,15 +66,6 @@ export default class CountDownScreen extends Phaser.Scene{
     {
 
     }
-
-    // loadFont(name, url) {
-    // let newFont = new FontFace(name, `url(${url})`);
-    // newFont.load().then(function (loaded) {
-    //     document.fonts.add(loaded);
-    // }).catch(function (error) {
-    //     return error;
-    //   });
-    // }
   
     countdown()
     {

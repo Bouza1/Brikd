@@ -1,5 +1,7 @@
-node_modules
-.cache
-dist
-package-lock.json
-package.json
+*.png
+*.mp3
+*.wav
+*.TTF
+data/
+
+

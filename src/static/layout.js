@@ -21,8 +21,6 @@ export function returnContainerSize(isMobile) {
   return [window.innerWidth * factor, window.innerWidth * heightFactor];
 }
 
-
-
 function returnTitleScreenScales() 
 {
   const optimalScreenWidth = 1152;
