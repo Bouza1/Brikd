@@ -1,5 +1,4 @@
-
-![titleBannerGithub](https://github.com/Bouza1/Brikd/assets/97123953/828daa68-4a16-4324-8f17-63a96150e586)
+![titleBannerGithub](https://github.com/Bouza1/Brikd/assets/97123953/6c2ed7f3-2d26-4124-adf2-c377967139fb)
 
 ## Description
 Brikd is a Phaser powered brick breaker game. Featuring an endless level system, a variety of dynamic power-ups, and a custom-built responsive design, Brikd ensures an optimized and engaging experience across various screen sizes. Users can immerse themselves in the satisfying physics-based gameplay, break through layers of bricks, and compete for the top spot on the global leaderboard. 
@@ -7,7 +6,8 @@ Brikd is a Phaser powered brick breaker game. Featuring an endless level system,
 Please visit:[ Brikd ](https://brikd.s4820791.repl.co/) to see the game in action.
 
 ## Demo:
-https://github.com/Bouza1/Brikd/assets/97123953/a90702c6-9381-4c4d-bc0c-45b1cb84bcf9
+https://github.com/Bouza1/Brikd/assets/97123953/9f83e5fa-0d26-4917-8a6f-714c1d691a07
+
 
 ## Built With:
 - ![HTML5](https://img.shields.io/badge/html5-%23E34F26.svg?style=for-the-badge&logo=html5&logoColor=white)
