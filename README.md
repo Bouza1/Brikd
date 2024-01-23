@@ -5,10 +5,6 @@ Brikd is a Phaser powered brick breaker game. Featuring an endless level system,
 
 Please visit:[ Brikd ](https://brikd.s4820791.repl.co/) to see the game in action.
 
-## Demo:
-https://github.com/Bouza1/Brikd/assets/97123953/9f83e5fa-0d26-4917-8a6f-714c1d691a07
-
-
 ## Built With:
 - ![HTML5](https://img.shields.io/badge/html5-%23E34F26.svg?style=for-the-badge&logo=html5&logoColor=white)
 - ![Bootstrap](https://img.shields.io/badge/bootstrap-%238511FA.svg?style=for-the-badge&logo=bootstrap&logoColor=white)
