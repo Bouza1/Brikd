@@ -13,5 +13,5 @@ Please visit:[ Brikd ](https://brikd.s4820791.repl.co/) to see the game in actio
 - ![Flask](https://img.shields.io/badge/flask-%23000.svg?style=for-the-badge&logo=flask&logoColor=white)
 
 ## Future Developments:
-- Add every letter in the alphabet and allow users to create a custom level with any 5/4 letter word they wish.
-- Add Leaderboard and functionallity that follows, including username input on phaser screen.
+- Add Custom Level Creator.
+- Rewrite with TypeScript
